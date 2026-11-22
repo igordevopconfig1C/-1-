@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
+
 kind delete cluster 2>/dev/null || true
-kind create cluster
+kind create cluster --config kind-config.yaml
 docker build -t mini-headhunter:latest .
 kind load docker-image mini-headhunter:latest
 kubectl create configmap db-init --from-file=schema.sql
