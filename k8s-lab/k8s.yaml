@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mini-headhunter
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: mini-headhunter}
+  template:
+    metadata:
+      labels: {app: mini-headhunter}
+    spec:
+      containers:
+      - name: app
+        image: mini-headhunter:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+      - name: mysql
+        image: mysql:8.0
+        env:
+        - {name: MYSQL_ROOT_PASSWORD, value: "12344321"}
+        - {name: MYSQL_DATABASE, value: mini_headhunter}
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - {name: init, mountPath: /docker-entrypoint-initdb.d}
+      volumes:
+      - name: init
+        configMap:
+          name: db-init
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mini-headhunter
+spec:
+  selector: {app: mini-headhunter}
+  ports:
+  - port: 80
+    targetPort: 5000
